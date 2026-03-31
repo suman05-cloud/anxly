@@ -2,17 +2,18 @@ import os
 import json
 from openai import OpenAI
 
-# ✅ Key comes from .env (local) or Railway Variables (production)
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.getenv("NVIDIA_API_KEY")
-)
-
 def stream_chat_response(messages: list):
     """
     Streams each chunk from NVIDIA NIM directly to the frontend.
-    Uses SSE (Server-Sent Events) format: data: {...}\n\n
+    Client is created inside the function so it reads the env variable
+    at request time — not at import time (fixes Railway crash).
     """
+    # ✅ Client created here — NVIDIA_API_KEY is guaranteed to be loaded
+    client = OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=os.getenv("NVIDIA_API_KEY")
+    )
+
     completion = client.chat.completions.create(
         model="deepseek-ai/deepseek-v3.1-terminus",
         messages=messages,
@@ -27,7 +28,6 @@ def stream_chat_response(messages: list):
         if chunk.choices:
             delta = chunk.choices[0].delta.content
             if delta:
-                # Send each chunk immediately to frontend
                 yield f"data: {json.dumps({'chunk': delta})}\n\n"
 
     # Signal frontend that stream is complete
