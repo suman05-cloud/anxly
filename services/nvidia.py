@@ -10,7 +10,7 @@ def stream_chat_response(messages: list):
     )
 
     completion = client.chat.completions.create(
-        model="deepseek-ai/deepseek-v3.1-terminus",
+        model="nvidia/nemotron-3-nano-30b-a3b",
         messages=messages,
         temperature=0.2,
         top_p=0.7,
