@@ -12,7 +12,7 @@ class ChatRequest(BaseModel):
 @router.post("/chat")
 def chat(req: ChatRequest):
     try:
-        # ✅ Sanitize history — normalize roles, skip empty messages
+        #  skip empty messages
         clean_history = []
         for msg in req.history:
             role    = msg.get("role", "")
@@ -22,7 +22,7 @@ def chat(req: ChatRequest):
             if content.strip():
                 clean_history.append({"role": role, "content": content})
 
-        # ✅ Always append current user message last
+        
         clean_history.append({"role": "user", "content": req.message})
 
         return StreamingResponse(
@@ -30,7 +30,7 @@ def chat(req: ChatRequest):
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
-                "X-Accel-Buffering": "no",  # critical for Railway/nginx
+                "X-Accel-Buffering": "no",  
                 "Connection": "keep-alive",
             }
         )

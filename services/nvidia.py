@@ -3,12 +3,7 @@ import json
 from openai import OpenAI
 
 def stream_chat_response(messages: list):
-    """
-    Streams each chunk from NVIDIA NIM directly to the frontend.
-    Client is created inside the function so it reads the env variable
-    at request time — not at import time (fixes Railway crash).
-    """
-    # ✅ Client created here — NVIDIA_API_KEY is guaranteed to be loaded
+    
     client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
         api_key=os.getenv("NVIDIA_API_KEY")
@@ -23,12 +18,13 @@ def stream_chat_response(messages: list):
         extra_body={"chat_template_kwargs": {"thinking": True}},
         stream=True
     )
-
+    
+    # for streaming not to send directly
     for chunk in completion:
         if chunk.choices:
             delta = chunk.choices[0].delta.content
             if delta:
                 yield f"data: {json.dumps({'chunk': delta})}\n\n"
 
-    # Signal frontend that stream is complete
+    
     yield f"data: {json.dumps({'done': True})}\n\n"

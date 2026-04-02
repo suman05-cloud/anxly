@@ -7,17 +7,17 @@ load_dotenv()
 
 app = FastAPI()
 
-# ✅ CORS — allow all origins (safe for now, restrict in production)
+# cors error handling
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,   # must be False when allow_origins=["*"]
+    allow_credentials=False,  
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(router, prefix="/api")
 
-@app.get("/")
+@app.get("/")  #backend status page
 def root():
     return {"status": "Backend is running ✅"}
